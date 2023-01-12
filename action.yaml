@@ -48,7 +48,7 @@ runs:
 
       echo -e '\n' >> $GITHUB_ENV
 
-      echo "EF_CONNECTION_STRING=Server=${{ inputs.database-host }};
+      echo "EF_CONNECTION_STRING=Server=${{ inputs.database-host }};Port=$ {{ inputs.database-port }};
       User Id=${{ inputs.database-user }};Password=${{ inputs.database-password }};
       Database=${{ inputs.database-name }};" >> $GITHUB_ENV
 
