@@ -72,6 +72,10 @@ runs:
     shell: bash
     run: dotnet tool install dotnet-ef -g
 
+  - name: Start local MySQL instance
+    shell: bash
+    run: sudo systemctl start mysql.service
+
   - name: Apply migration to a clone database
     shell: bash
     run: dotnet ef database update $EF_ARGS -- 
