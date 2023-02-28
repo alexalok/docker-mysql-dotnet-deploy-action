@@ -156,4 +156,4 @@ runs:
     run: dotnet ef database update $EF_ARGS $PREV_MIGRATION_NAME -- 
       --Common:ConnectionString "$EF_CONNECTION_STRING"
     env:
-      PREV_MIGRATION_NAME: ${{ steps.get-last-successful-live-migration.output.name }}
+      PREV_MIGRATION_NAME: ${{ steps.get-last-successful-live-migration.outputs.name }}
