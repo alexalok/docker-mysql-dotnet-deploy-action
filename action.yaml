@@ -33,6 +33,10 @@ inputs:
     description: 'Extra args to pass to dotnet ef invocations'
     required: false
     default: ""
+  mysqldump-extra-args:
+    description: 'Extra args to pass to mysqldump invocations (optional)'
+    required: false
+    default: ""
    
 runs:
   using: "composite"
@@ -42,7 +46,7 @@ runs:
     run: >
       echo "MYSQLDUMP_COMMON_ARGS=-h ${{ inputs.database-host }} -P ${{ inputs.database-port }} 
       -u ${{ inputs.database-user }} -p${{ inputs.database-password }} --set-gtid-purged=OFF
-      --single-transaction" >> $GITHUB_ENV
+      --single-transaction ${{ inputs.mysqldump-extra-args }}" >> $GITHUB_ENV
 
       echo "COMPOSE_FILES=${{ inputs.compose-files }}" | tr '\n' ' ' >> $GITHUB_ENV
 
