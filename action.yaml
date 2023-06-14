@@ -48,7 +48,11 @@ runs:
       -u ${{ inputs.database-user }} -p${{ inputs.database-password }} --set-gtid-purged=OFF
       --single-transaction ${{ inputs.mysqldump-extra-args }}" >> $GITHUB_ENV
 
-      echo "COMPOSE_FILES=${{ inputs.compose-files }}" | tr '\n' ' ' >> $GITHUB_ENV
+      COMPOSE_FILES=$("${{ inputs.compose-files }}" | tr '\n' ' ')
+      echo "COMPOSE_FILES=$COMPOSE_FILES"  >> $GITHUB_ENV
+
+      COMPOSE_FILES_ARG=$(for file in $COMPOSE_FILES; do echo -n "-f $file "; done)
+      echo "COMPOSE_FILES_ARG=$COMPOSE_FILES_ARG" >> $GITHUB_ENV
 
       echo -e '\n' >> $GITHUB_ENV
 
@@ -113,7 +117,7 @@ runs:
     id: bake_set
     shell: bash
     run: |
-      TARGETS_ARRAY=$(docker buildx bake --print | jq -cr '.group.default.targets')
+      TARGETS_ARRAY=$(docker buildx bake $COMPOSE_FILES_ARG --print | jq -cr '.group.default.targets')
       echo 'SET<<EOF' >> $GITHUB_OUTPUT
       echo "*.args.COMMIT_SHA=$SHA_SHORT" >> $GITHUB_OUTPUT
       echo "*.labels.COMMIT_SHA=$SHA_SHORT" >> $GITHUB_OUTPUT
@@ -143,7 +147,6 @@ runs:
   - name: Run redeployment
     shell: bash
     run: |
-      COMPOSE_FILES_ARG=$(for file in $COMPOSE_FILES; do echo -n "-f $file "; done)
       ssh root@${{ inputs.server-address }} \
       "set -e 
       cd ${{ inputs.compose-folder }}
