@@ -50,10 +50,10 @@ runs:
 
       COMPOSE_FILES=$(echo "${{ inputs.compose-files }}" | tr '\n' ' ')
       echo "COMPOSE_FILES=$COMPOSE_FILES"  >> $GITHUB_ENV
+      echo -e '\n' >> $GITHUB_ENV
 
       COMPOSE_FILES_ARG=$(for file in $COMPOSE_FILES; do echo -n "-f $file "; done)
       echo "COMPOSE_FILES_ARG=$COMPOSE_FILES_ARG" >> $GITHUB_ENV
-
       echo -e '\n' >> $GITHUB_ENV
 
       echo "EF_CONNECTION_STRING=Server=${{ inputs.database-host }};Port=${{ inputs.database-port }};
