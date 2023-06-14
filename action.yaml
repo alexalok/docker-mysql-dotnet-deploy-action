@@ -48,7 +48,7 @@ runs:
       -u ${{ inputs.database-user }} -p${{ inputs.database-password }} --set-gtid-purged=OFF
       --single-transaction ${{ inputs.mysqldump-extra-args }}" >> $GITHUB_ENV
 
-      COMPOSE_FILES=$("${{ inputs.compose-files }}" | tr '\n' ' ')
+      COMPOSE_FILES=$(echo "${{ inputs.compose-files }}" | tr '\n' ' ')
       echo "COMPOSE_FILES=$COMPOSE_FILES"  >> $GITHUB_ENV
 
       COMPOSE_FILES_ARG=$(for file in $COMPOSE_FILES; do echo -n "-f $file "; done)
