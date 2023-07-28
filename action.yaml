@@ -84,7 +84,9 @@ runs:
       --set-gtid-purged=OFF --result-file schema.sql;
 
       mysqldump $MYSQLDUMP_COMMON_ARGS --result-file migrations.sql 
-      ${{ inputs.database-name }}  __EFMigrationsHistory;
+      ${{ inputs.database-name }}  __EFMigrationsHistory || 
+      mysqldump $MYSQLDUMP_COMMON_ARGS --result-file migrations.sql 
+      ${{ inputs.database-name }}  __efmigrationshistory;
 
       cat schema.sql >> import.sql;
       cat migrations.sql >> import.sql; 
