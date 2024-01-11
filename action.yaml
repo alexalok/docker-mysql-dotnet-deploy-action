@@ -33,6 +33,10 @@ inputs:
     description: 'Name of the setting in appsettings.json that contains connection string'
     required: false
     default: "Common:ConnectionString"
+  ef-connectionstring-command-timeout:
+    description: 'Command timeout for EF Core migrations'
+    required: false
+    default: "30"
   ef-extra-args:
     description: 'Extra args to pass to dotnet ef invocations'
     required: false
@@ -65,7 +69,8 @@ runs:
 
       echo "EF_CONNECTION_STRING=Server=${{ inputs.database-host }};Port=${{ inputs.database-port }};
       User Id=${{ inputs.database-user }};Password=${{ inputs.database-password }};
-      Database=${{ inputs.database-name }};" >> $GITHUB_ENV
+      Database=${{ inputs.database-name }};default command timeout=${{ inputs.ef-connectionstring-command-timeout }};" 
+      >> $GITHUB_ENV
 
       echo "EF_CONNECTIONSTRING_SETTING=${{ inputs.ef-connectionstring-setting }}" >> $GITHUB_ENV
 
