@@ -55,7 +55,7 @@ runs:
     run: >
       echo "MYSQLDUMP_COMMON_ARGS=-h ${{ inputs.database-host }} -P ${{ inputs.database-port }} 
       -u ${{ inputs.database-user }} -p${{ inputs.database-password }} --set-gtid-purged=OFF
-      --single-transaction ${{ inputs.mysqldump-extra-args }}" >> $GITHUB_ENV
+      --single-transaction --no-tablespaces ${{ inputs.mysqldump-extra-args }}" >> $GITHUB_ENV
 
       echo "COMPOSE_FILES=$COMPOSE_FILES" | tr '\n' ' ' >> $GITHUB_ENV
 
