@@ -11,6 +11,10 @@ inputs:
   compose-folder:
     description: 'Folder on a target server to deploy in'
     required: true
+  buildx-disable-caching:
+    description: 'Whether buildx image caching must be disabled (default false)'
+    required: false
+    default: 'false'
 
   database-host:
     description: 'Database hostname'
@@ -139,14 +143,16 @@ runs:
       echo 'SET<<EOF' >> $GITHUB_OUTPUT
       echo "*.args.COMMIT_SHA=$SHA_SHORT" >> $GITHUB_OUTPUT
       echo "*.labels.COMMIT_SHA=$SHA_SHORT" >> $GITHUB_OUTPUT
-      echo $TARGETS_ARRAY | jq -cr '.[]' | while read target; do
+      if [[ "${{ inputs.buildx-disable-caching }}" == "false" ]]; then
+        echo $TARGETS_ARRAY | jq -cr '.[]' | while read target; do
           echo "$target.cache-to=type=gha,mode=max,scope=$GITHUB_REF_NAME-$target" >> $GITHUB_OUTPUT
           echo "$target.cache-from=type=gha,mode=max,scope=$GITHUB_REF_NAME-$target" >> $GITHUB_OUTPUT
-      done
+        done
+      fi
       echo 'EOF' >> $GITHUB_OUTPUT
 
   - name: Build and push
-    uses: docker/bake-action@v2
+    uses: docker/bake-action@v5.0.0
     with:
       push: true
       set: ${{ steps.bake_set.outputs.SET }}
