@@ -50,6 +50,10 @@ inputs:
     description: 'Extra args to pass to mysqldump invocations (optional)'
     required: false
     default: ""
+  mysqldump-copy-tables:
+    description: List of tables for mysqldump to copy to local database to test migrations against
+    required: false
+    default: ""
    
 runs:
   using: "composite"
@@ -79,6 +83,9 @@ runs:
       echo "EF_CONNECTIONSTRING_SETTING=${{ inputs.ef-connectionstring-setting }}" >> $GITHUB_ENV
 
       echo "EF_ARGS=${{ inputs.ef-extra-args }}" >> $GITHUB_ENV
+
+      MYSQLDUMP_COPY_TABLES=$(echo "${{ inputs.mysqldump-copy-tables }}" | tr '\n' ' ')
+      echo "MYSQLDUMP_COPY_TABLES=$MYSQLDUMP_COPY_TABLES" >> $GITHUB_ENV
     env:
       COMPOSE_FILES: ${{ inputs.compose-files }}
 
@@ -97,8 +104,12 @@ runs:
       mysqldump $MYSQLDUMP_COMMON_ARGS --result-file migrations.sql 
       ${{ inputs.database-name }}  __efmigrationshistory;
 
+      mysqldump $MYSQLDUMP_COMMON_ARGS --result-file required-tables.sql
+      ${{ inputs.database-name }} $MYSQLDUMP_COPY_TABLES;
+
       cat schema.sql >> import.sql;
       cat migrations.sql >> import.sql; 
+      cat required-tables.sql >> import.sql
 
       mysql -u root -proot < import.sql
 
