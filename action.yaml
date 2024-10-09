@@ -95,22 +95,28 @@ runs:
 
   - name: Clone schema from prod
     shell: bash
-    run: >
-      mysqldump $MYSQLDUMP_COMMON_ARGS --no-data --databases ${{ inputs.database-name }} 
-      --set-gtid-purged=OFF --result-file schema.sql;
+    run: |
+      # copy schema w/o data
+      mysqldump $MYSQLDUMP_COMMON_ARGS --no-data --databases ${{ inputs.database-name }} \
+        --set-gtid-purged=OFF --result-file schema.sql;
 
-      mysqldump $MYSQLDUMP_COMMON_ARGS --result-file migrations.sql 
-      ${{ inputs.database-name }}  __EFMigrationsHistory || 
-      mysqldump $MYSQLDUMP_COMMON_ARGS --result-file migrations.sql 
-      ${{ inputs.database-name }}  __efmigrationshistory;
+      # copy migrations table
+      mysqldump $MYSQLDUMP_COMMON_ARGS --result-file migrations.sql \
+        ${{ inputs.database-name }}  __EFMigrationsHistory || \
+          mysqldump $MYSQLDUMP_COMMON_ARGS --result-file migrations.sql \
+            ${{ inputs.database-name }}  __efmigrationshistory;
 
-      mysqldump $MYSQLDUMP_COMMON_ARGS --result-file required-tables.sql
-      ${{ inputs.database-name }} $MYSQLDUMP_COPY_TABLES;
+      # copy required tables (if specified)
+      if [ -n "${MYSQLDUMP_COPY_TABLES// }" ]; then
+        mysqldump $MYSQLDUMP_COMMON_ARGS --result-file required-tables.sql ${{ inputs.database-name }} $MYSQLDUMP_COPY_TABLES;
+      else
+        touch required-tables.sql;
+      fi
 
+      # import everything
       cat schema.sql >> import.sql;
       cat migrations.sql >> import.sql; 
-      cat required-tables.sql >> import.sql
-
+      cat required-tables.sql >> import.sql;
       mysql -u root -proot < import.sql
 
   - name: Install dotnet-ef
